@@ -10,13 +10,15 @@ const expressLayouts = require("express-ejs-layouts");
 const env = require("dotenv").config();
 const app = express();
 const staticRoutes = require("./routes/static");
+const baseController = require("./controllers/baseController");
+const inventoryRoute = require("./routes/inventoryRoute")
 
 /* ***********************
  * View Engine and Templates
  *************************/
-app.set("view engine", "ejs")
-app.use(expressLayouts)
-app.set("layout", "./layouts/layout") // not at views root
+app.set("view engine", "ejs");
+app.use(expressLayouts);
+app.set("layout", "./layouts/layout"); // not at views root
 
 /* ***********************
  * Routes
@@ -24,16 +26,17 @@ app.set("layout", "./layouts/layout") // not at views root
 app.use(staticRoutes);
 
 // Index route
-app.get("/", function(req, res){
-  res.render("index", {title: "Home | CSE Motors"})
-})
+app.get("/", baseController.buildHome);
+
+// Inventory routes
+app.use("/inv", inventoryRoute)
 
 /* ***********************
  * Local Server Information
  * Values from .env (environment) file
  *************************/
 const port = process.env.PORT || 5500;
-const host = process.env.HOST || 'localhost';
+const host = process.env.HOST || "localhost";
 
 /* ***********************
  * Log statement to confirm server operation
