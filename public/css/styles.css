@@ -63,12 +63,18 @@ nav ul {
 }
 
 nav ul li {
-  padding: 15px;
-  color: #fff;
-  cursor: pointer;
+  flex: 1;
 }
 
-nav ul li:hover {
+nav ul li a {
+  display: block;
+  padding: 15px;
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+}
+
+nav ul li a:hover {
   background-color: #4bc2e3;
   color: #000;
 }
