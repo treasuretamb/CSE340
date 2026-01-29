@@ -77,4 +77,40 @@ Util.buildClassificationGrid = async function (data) {
   return grid;
 };
 
+/* **************************************
+* Build the detail view HTML
+* ************************************ */
+Util.buildDetailGrid = async function(data){
+  let grid
+  if(data.length > 0){
+    const vehicle = data[0]
+    grid = '<div id="vehicle-detail">'
+    grid += '<div class="vehicle-image">'
+    grid += '<img src="' + vehicle.inv_image 
+    + '" alt="Image of ' + vehicle.inv_make + ' ' + vehicle.inv_model 
+    + ' on CSE Motors" />'
+    grid += '</div>'
+    grid += '<div class="vehicle-info">'
+    grid += '<h2>' + vehicle.inv_make + ' ' + vehicle.inv_model + ' Details</h2>'
+    grid += '<p class="price"><strong>Price: $' 
+    + new Intl.NumberFormat('en-US').format(vehicle.inv_price) + '</strong></p>'
+    grid += '<p><strong>Description:</strong> ' + vehicle.inv_description + '</p>'
+    grid += '<p><strong>Color:</strong> ' + vehicle.inv_color + '</p>'
+    grid += '<p><strong>Miles:</strong> ' 
+    + new Intl.NumberFormat('en-US').format(vehicle.inv_miles) + '</p>'
+    grid += '</div>'
+    grid += '</div>'
+  } else { 
+    grid = '<p class="notice">Sorry, no matching vehicle could be found.</p>'
+  }
+  return grid
+}
+
+/* ****************************************
+ * Middleware For Handling Errors
+ * Wrap other function in this for 
+ * General Error Handling
+ **************************************** */
+Util.handleErrors = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
+
 module.exports = Util;
