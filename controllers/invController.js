@@ -4,7 +4,7 @@ const utilities = require("../utilities/")
 const invCont = {}
 
 /* ***************************
- *  Build inventory by classification view
+ * Build inventory by classification view
  * ************************** */
 invCont.buildByClassificationId = async function (req, res, next) {
   const classification_id = req.params.classificationId
@@ -20,7 +20,7 @@ invCont.buildByClassificationId = async function (req, res, next) {
 }
 
 /* ***************************
- *  Build inventory item detail view
+ * Build inventory item detail view
  * ************************** */
 invCont.buildByInventoryId = async function (req, res, next) {
   const inv_id = req.params.inv_id
@@ -36,7 +36,101 @@ invCont.buildByInventoryId = async function (req, res, next) {
 }
 
 /* ***************************
- *  Trigger intentional error for testing
+ * Build Inventory Management View
+ * ************************** */
+invCont.buildManagement = async function (req, res, next) {
+  let nav = await utilities.getNav()
+  res.render("inventory/management", {
+    title: "Vehicle Management",
+    nav,
+    errors: null,
+  })
+}
+
+/* ***************************
+ * Build Add Classification View
+ * ************************** */
+invCont.buildAddClassification = async function (req, res, next) {
+  let nav = await utilities.getNav()
+  res.render("inventory/add-classification", {
+    title: "Add New Classification",
+    nav,
+    errors: null,
+  })
+}
+
+/* ***************************
+ * Process Add Classification
+ * ************************** */
+invCont.addClassification = async function (req, res) {
+  const { classification_name } = req.body
+  const result = await invModel.addClassification(classification_name)
+  if (result) {
+    let nav = await utilities.getNav() 
+    req.flash("notice", `The ${classification_name} classification was successfully added.`)
+    res.status(201).render("inventory/management", {
+      title: "Vehicle Management",
+      nav,
+    })
+  } else {
+    req.flash("notice", "Sorry, adding the classification failed.")
+    res.status(501).render("inventory/add-classification", {
+      title: "Add New Classification",
+      nav: await utilities.getNav(),
+    })
+  }
+}
+
+/* ***************************
+ * Build Add Inventory View
+ * ************************** */
+invCont.buildAddInventory = async function (req, res, next) {
+  let nav = await utilities.getNav()
+  let classificationList = await utilities.buildClassificationList()
+  res.render("inventory/add-inventory", {
+    title: "Add Inventory",
+    nav,
+    classificationList,
+    errors: null,
+  })
+}
+
+/* ***************************
+ * Process Add Inventory
+ * ************************** */
+invCont.addInventory = async function (req, res) {
+  let nav = await utilities.getNav()
+  const { 
+    inv_make, inv_model, inv_year, inv_description, 
+    inv_image, inv_thumbnail, inv_price, inv_miles, 
+    inv_color, classification_id 
+  } = req.body
+
+  const result = await invModel.addInventory(
+    inv_make, inv_model, inv_year, inv_description, 
+    inv_image, inv_thumbnail, inv_price, inv_miles, 
+    inv_color, classification_id
+  )
+
+  if (result) {
+    req.flash("notice", `The ${inv_make} ${inv_model} was successfully added.`)
+    res.status(201).render("inventory/management", {
+      title: "Vehicle Management",
+      nav,
+    })
+  } else {
+    let classificationList = await utilities.buildClassificationList(classification_id)
+    req.flash("notice", "Sorry, adding the vehicle failed.")
+    res.status(501).render("inventory/add-inventory", {
+      title: "Add Inventory",
+      nav,
+      classificationList,
+    })
+  }
+}
+
+/* ***************************
+ * Trigger intentional error
  * ************************** */
 invCont.triggerError = async function (req, res, next) {
   throw new Error('Intentional 500 error for testing purposes');
