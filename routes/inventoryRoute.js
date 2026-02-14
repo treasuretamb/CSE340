@@ -7,6 +7,9 @@ const regValidate = require('../utilities/inventory-validation')
 // Route to Management View
 router.get("/", utilities.handleErrors(invController.buildManagement))
 
+// Route to get inventory as JSON for management view
+router.get("/getInventory/:classification_id", utilities.handleErrors(invController.getInventoryJSON))
+
 // Routes for Add Classification
 router.get("/add-classification", utilities.handleErrors(invController.buildAddClassification))
 router.post(
@@ -28,6 +31,11 @@ router.post(
 // Classification and Detail views
 router.get("/type/:classificationId", utilities.handleErrors(invController.buildByClassificationId))
 router.get("/detail/:inv_id", utilities.handleErrors(invController.buildByInventoryId))
+
+// Delete Routes
+router.get("/delete/:inv_id", utilities.handleErrors(invController.buildDeleteConfirmation))
+router.post("/delete/", utilities.handleErrors(invController.deleteItem))
+
 router.get("/trigger-error", utilities.handleErrors(invController.triggerError))
 
 module.exports = router
