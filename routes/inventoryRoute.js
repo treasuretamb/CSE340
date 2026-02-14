@@ -36,6 +36,7 @@ router.get("/detail/:inv_id", utilities.handleErrors(invController.buildByInvent
 router.get("/delete/:inv_id", utilities.handleErrors(invController.buildDeleteConfirmation))
 router.post("/delete/", utilities.handleErrors(invController.deleteItem))
 
+// Error trigger for testing
 router.get("/trigger-error", utilities.handleErrors(invController.triggerError))
 
 module.exports = router

@@ -11,14 +11,14 @@ classificationList.addEventListener("change", function () {
       if (response.ok) {
         return response.json();
       }
-      throw Error("Network response was not ok");
+      throw Error("Network response was not OK");
     })
     .then(function (data) {
       console.log(data);
       buildInventoryList(data);
     })
     .catch(function (error) {
-      console.log('There was a problem: ', error.message);
+      console.log('There was a problem: ', error.message)
     })
 })
 
@@ -31,14 +31,14 @@ function buildInventoryList(data) {
   dataTable += '</thead>';
   // Set up the table body
   dataTable += '<tbody>';
-  // Iterate over all vehicles and put each in a row
+  // Iterate over all vehicles in the array and put each in a row
   data.forEach(function (element) {
-    console.log(element.inv_id + ", " + element.inv_make + ", " + element.inv_model);
+    console.log(element.inv_id + ", " + element.inv_model);
     dataTable += `<tr><td>${element.inv_make} ${element.inv_model}</td>`;
     dataTable += `<td><a href='/inv/edit/${element.inv_id}' title='Click to update'>Modify</a></td>`;
     dataTable += `<td><a href='/inv/delete/${element.inv_id}' title='Click to delete'>Delete</a></td></tr>`;
   })
   dataTable += '</tbody>';
-  // Display the contents in the Management view
+  // Display the contents in the Inventory Management view
   inventoryDisplay.innerHTML = dataTable;
 }

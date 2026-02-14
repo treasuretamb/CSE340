@@ -40,6 +40,7 @@ invCont.buildByInventoryId = async function (req, res, next) {
  * ************************** */
 invCont.buildManagement = async function (req, res, next) {
   let nav = await utilities.getNav()
+  // Add the classification select list for the management view
   const classificationSelect = await utilities.buildClassificationList()
   res.render("inventory/management", {
     title: "Vehicle Management",
