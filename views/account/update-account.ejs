@@ -1,0 +1,54 @@
+<% if (title) { %>
+  <h1><%= title %></h1>
+<% } %>
+
+<%- messages() %>
+
+<% if (errors) { %>
+  <ul class="notice">
+  <% errors.array().forEach(error => { %>
+    <li><%= error.msg %></li>
+  <%  }) %>
+  </ul>
+<% } %>
+
+<div class="update-container">
+  <section class="update-section">
+    <h2>Account Update</h2>
+    <form action="/account/update-info" method="post">
+      <label for="account_firstname">First Name</label>
+      <input type="text" name="account_firstname" id="account_firstname" required 
+        value="<%= locals.accountData ? locals.accountData.account_firstname : (locals.firstname ? locals.firstname : '') %>">
+
+      <label for="account_lastname">Last Name</label>
+      <input type="text" name="account_lastname" id="account_lastname" required 
+        value="<%= locals.accountData ? locals.accountData.account_lastname : (locals.lastname ? locals.lastname : '') %>">
+
+      <label for="account_email">Email Address</label>
+      <input type="email" name="account_email" id="account_email" required 
+        value="<%= locals.accountData ? locals.accountData.account_email : (locals.email ? locals.email : '') %>">
+
+      <input type="submit" value="Update Account">
+      <input type="hidden" name="account_id" 
+        value="<%= locals.accountData ? locals.accountData.account_id : (locals.account_id ? locals.account_id : '') %>">
+    </form>
+  </section>
+
+  <hr>
+
+  <section class="update-section">
+    <h2>Change Password</h2>
+    <p>Passwords must be at least 12 characters and include at least 1 number, 1 capital letter and 1 special character.</p>
+    <p><em>Note: Entering a password here will change your current password.</em></p>
+    
+    <form action="/account/update-password" method="post">
+      <label for="account_password">New Password</label>
+      <input type="password" name="account_password" id="account_password" 
+        pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{12,}$" required>
+
+      <input type="submit" value="Change Password">
+      <input type="hidden" name="account_id" 
+        value="<%= locals.accountData ? locals.accountData.account_id : (locals.account_id ? locals.account_id : '') %>">
+    </form>
+  </section>
+</div>

@@ -1,5 +1,5 @@
 const utilities = require("../utilities/")
-// You will import your account model here in later steps
+const accountModel = require("../models/account-model")
 
 /* ****************************************
 * Deliver account management view
@@ -13,4 +13,23 @@ async function buildManagement(req, res, next) {
   })
 }
 
-module.exports = { buildManagement }
+/* ****************************************
+* Deliver account update view
+* *************************************** */
+async function editAccountView(req, res, next) {
+  const account_id = parseInt(req.params.account_id)
+  let nav = await utilities.getNav()
+  // In a real scenario, you'd fetch the latest data from the DB here
+  // For now, we rely on the data in the session/locals
+  res.render("account/update-account", {
+    title: "Edit Account",
+    nav,
+    errors: null,
+    account_id: account_id
+  })
+}
+
+module.exports = { 
+  buildManagement,
+  editAccountView
+}
