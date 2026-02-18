@@ -49,9 +49,8 @@ async function updateAccount(req, res) {
   )
 
   if (updateResult) {
-    // Re-fetch data and generate a NEW token so the header/locals update
     const accountData = await accountModel.getAccountById(account_id)
-    delete accountData.account_password // security
+    delete accountData.account_password
     const accessToken = jwt.sign(accountData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 3600 * 1000 })
     res.cookie("jwt", accessToken, { httpOnly: true, maxAge: 3600 * 1000 })
     
@@ -78,7 +77,6 @@ async function updatePassword(req, res) {
   let nav = await utilities.getNav()
   const { account_password, account_id } = req.body
 
-  // Hash the password before storing
   let hashedPassword
   try {
     hashedPassword = await bcrypt.hashSync(account_password, 10)
@@ -108,9 +106,18 @@ async function updatePassword(req, res) {
   }
 }
 
+/* ****************************************
+ * Process logout
+ * *************************************** */
+async function accountLogout(req, res, next) {
+  res.clearCookie("jwt")
+  res.redirect("/")
+}
+
 module.exports = { 
   buildManagement, 
   editAccountView, 
   updateAccount, 
-  updatePassword 
+  updatePassword,
+  accountLogout 
 }
