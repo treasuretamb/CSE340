@@ -28,6 +28,17 @@ router.post(
   utilities.handleErrors(invController.addInventory)
 )
 
+// Route to Build Edit Inventory View
+router.get("/edit/:inv_id", utilities.handleErrors(invController.editInventoryView))
+
+// Route to Process Update Inventory
+router.post(
+  "/update/",
+  regValidate.inventoryRules(),
+  regValidate.checkUpdateData,
+  utilities.handleErrors(invController.updateInventory)
+)
+
 // Classification and Detail views
 router.get("/type/:classificationId", utilities.handleErrors(invController.buildByClassificationId))
 router.get("/detail/:inv_id", utilities.handleErrors(invController.buildByInventoryId))

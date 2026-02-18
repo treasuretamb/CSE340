@@ -14,11 +14,7 @@ const session = require("express-session")
 const pool = require('./database/')
 const flash = require('connect-flash')
 const bodyParser = require("body-parser")
-
-/* ***********************
- * Routes - Static Files First
- *************************/
-app.use(staticRoutes)
+const cookieParser = require("cookie-parser")
 
 /* ***********************
  * Middleware
@@ -26,6 +22,9 @@ app.use(staticRoutes)
 // Body Parser Middleware
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true })) 
+
+// Cookie Parser Middleware
+app.use(cookieParser())
 
 // Session Middleware
 app.use(session({
@@ -45,12 +44,20 @@ app.use(function(req, res, next){
   next()
 })
 
+// Check JWT Token Middleware
+app.use(utilities.checkJWTToken)
+
 /* ***********************
  * View Engine and Templates
  *************************/
 app.set("view engine", "ejs")
 app.use(expressLayouts)
 app.set("layout", "./layouts/layout")
+
+/* ***********************
+ * Routes - Static Files First
+ *************************/
+app.use(staticRoutes)
 
 /* ***********************
  * Routes - Application Logic
