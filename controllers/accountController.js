@@ -1,5 +1,9 @@
 const utilities = require("../utilities/")
+<<<<<<< HEAD
 const accountModel = require("../models/account-model")
+=======
+// You will import your account model here in later steps
+>>>>>>> a627cf756e139d21666581a7eaf6e579ca9a2004
 
 /* ****************************************
 * Deliver account management view
@@ -13,6 +17,7 @@ async function buildManagement(req, res, next) {
   })
 }
 
+<<<<<<< HEAD
 /* ****************************************
 * Deliver account update view
 * *************************************** */
@@ -33,3 +38,6 @@ module.exports = {
   buildManagement,
   editAccountView
 }
+=======
+module.exports = { buildManagement }
+>>>>>>> a627cf756e139d21666581a7eaf6e579ca9a2004
