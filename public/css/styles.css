@@ -367,8 +367,7 @@ footer {
 }
 
 /* Styling links to look like buttons or distinct calls to action */
-.account-actions a, 
-.update-container a {
+.account-actions a {
   color: #333;
   font-weight: bold;
   text-decoration: none;
@@ -381,28 +380,7 @@ footer {
   padding-left: 5px;
 }
 
-/* Update Account View */
-.update-container {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  max-width: 500px;
-  margin: 20px auto;
-}
 
-.update-section {
-  padding: 20px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-.update-section h2 {
-  margin-top: 0;
-  color: #4bc2e3;
-  font-size: 1.4rem;
-}
 
 /* --- Login & Registration Form Styles --- */
 
@@ -497,10 +475,27 @@ footer {
 
 /* --- Update Account View Styles --- */
 
+.update-container a {
+  color: #333;
+  font-weight: bold;
+  text-decoration: none;
+  border-bottom: 2px solid #4bc2e3;
+  transition: all 0.3s ease;
+}
+
 .update-container {
   max-width: 600px;
   margin: 2rem auto;
   padding: 0 1rem;
+}
+
+/* Update Account View */
+.update-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  max-width: 500px;
+  margin: 20px auto;
 }
 
 .update-section {
