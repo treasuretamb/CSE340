@@ -10,4 +10,3 @@ router.get("/", utilities.checkLogin, utilities.handleErrors(accountController.b
 router.get("/update/:account_id", utilities.checkLogin, utilities.handleErrors(accountController.editAccountView))
 
 module.exports = router
-
