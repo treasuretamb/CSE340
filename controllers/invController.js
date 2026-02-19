@@ -1,5 +1,6 @@
 const invModel = require("../models/inventory-model")
 const utilities = require("../utilities/")
+const reviewModel = require("../models/review-model")
 
 const invCont = {}
 
@@ -9,6 +10,11 @@ const invCont = {}
 invCont.buildByClassificationId = async function (req, res, next) {
   const classification_id = req.params.classificationId
   const data = await invModel.getInventoryByClassificationId(classification_id)
+  
+  if (!data || data.length === 0) {
+    return next(new Error("No vehicles found for this classification"))
+  }
+
   const grid = await utilities.buildClassificationGrid(data)
   let nav = await utilities.getNav()
   const className = data[0].classification_name
@@ -25,13 +31,25 @@ invCont.buildByClassificationId = async function (req, res, next) {
 invCont.buildByInventoryId = async function (req, res, next) {
   const inv_id = req.params.inv_id
   const data = await invModel.getInventoryByInventoryId(inv_id)
-  const grid = await utilities.buildDetailGrid(data)
+  
+  if (!data || data.length === 0) {
+    return next(new Error("Vehicle not found"))
+  }
+
+  const reviews = await reviewModel.getReviewsByInvId(inv_id) 
+  const loggedIn = res.locals.loggedin 
+  const account_id = res.locals.accountData ? res.locals.accountData.account_id : null
+
+  // Build the detail grid including reviews and login status
+  const grid = await utilities.buildDetailGrid(data, loggedIn, account_id, reviews)
+  
   let nav = await utilities.getNav()
   const vehicleName = `${data[0].inv_make} ${data[0].inv_model}`
   res.render("./inventory/detail", {
     title: vehicleName,
     nav,
     grid,
+    errors: null,
   })
 }
 
@@ -181,30 +199,14 @@ invCont.editInventoryView = async function (req, res, next) {
 invCont.updateInventory = async function (req, res, next) {
   let nav = await utilities.getNav()
   const {
-    inv_id,
-    inv_make,
-    inv_model,
-    inv_description,
-    inv_image,
-    inv_thumbnail,
-    inv_price,
-    inv_year,
-    inv_miles,
-    inv_color,
-    classification_id,
+    inv_id, inv_make, inv_model, inv_description,
+    inv_image, inv_thumbnail, inv_price, inv_year,
+    inv_miles, inv_color, classification_id,
   } = req.body
   const updateResult = await invModel.updateInventory(
-    inv_id,
-    inv_make,
-    inv_model,
-    inv_description,
-    inv_image,
-    inv_thumbnail,
-    inv_price,
-    inv_year,
-    inv_miles,
-    inv_color,
-    classification_id
+    inv_id, inv_make, inv_model, inv_description,
+    inv_image, inv_thumbnail, inv_price, inv_year,
+    inv_miles, inv_color, classification_id
   )
 
   if (updateResult) {
@@ -220,17 +222,9 @@ invCont.updateInventory = async function (req, res, next) {
       nav,
       classificationSelect: classificationSelect,
       errors: null,
-      inv_id,
-      inv_make,
-      inv_model,
-      inv_year,
-      inv_description,
-      inv_image,
-      inv_thumbnail,
-      inv_price,
-      inv_miles,
-      inv_color,
-      classification_id
+      inv_id, inv_make, inv_model, inv_year,
+      inv_description, inv_image, inv_thumbnail,
+      inv_price, inv_miles, inv_color, classification_id
     })
   }
 }

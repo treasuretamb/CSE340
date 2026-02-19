@@ -27,36 +27,17 @@ Util.getNav = async function (req, res, next) {
 }
 
 /* **************************************
-* Build the classification select list
-* ************************************ */
-Util.buildClassificationList = async function (classification_id = null) {
-  let data = await invModel.getClassifications()
-  let classificationList =
-    '<select name="classification_id" id="classificationList" required>'
-  classificationList += "<option value=''>Choose a Classification</option>"
-  data.rows.forEach((row) => {
-    classificationList += '<option value="' + row.classification_id + '"'
-    if (classification_id != null && row.classification_id == classification_id) {
-      classificationList += " selected "
-    }
-    classificationList += ">" + row.classification_name + "</option>"
-  })
-  classificationList += "</select>"
-  return classificationList
-}
-
-/* **************************************
 * Build the classification grid HTML
 * ************************************ */
 Util.buildClassificationGrid = async function(data){
   let grid
-  if(data.length > 0){
+  if(data && data.length > 0){
     grid = '<ul id="inv-display">'
     data.forEach(vehicle => { 
       grid += '<li>'
       grid +=  '<a href="../../inv/detail/'+ vehicle.inv_id 
       + '" title="View ' + vehicle.inv_make + ' '+ vehicle.inv_model 
-      + 'details"><img src="' + vehicle.inv_thumbnail 
+      + ' details"><img src="' + vehicle.inv_thumbnail 
       +'" alt="Image of '+ vehicle.inv_make + ' ' + vehicle.inv_model 
       +' on CSE Motors" /></a>'
       grid += '<div class="namePrice">'
@@ -81,18 +62,71 @@ Util.buildClassificationGrid = async function(data){
 /* **************************************
 * Build the item detail view HTML
 * ************************************ */
-Util.buildDetailGrid = async function(data){
+Util.buildDetailGrid = async function(data, loggedIn, account_id, reviews = [], errors = null, review_text = "") {
+  if (!data || data.length === 0) return '<p class="notice">Vehicle details not found.</p>'
+  
   let vehicle = data[0]
   let detail = '<div id="detail-display">'
-  detail += '<img src="' + vehicle.inv_image + '" alt="' + vehicle.inv_make + ' ' + vehicle.inv_model + '">'
-  detail += '<div id="vehicle-details">'
-  detail += '<h2>' + vehicle.inv_make + ' ' + vehicle.inv_model + ' Details</h2>'
-  detail += '<p><strong>Price:</strong> $' + new Intl.NumberFormat('en-US').format(vehicle.inv_price) + '</p>'
-  detail += '<p><strong>Description:</strong> ' + vehicle.inv_description + '</p>'
-  detail += '<p><strong>Color:</strong> ' + vehicle.inv_color + '</p>'
-  detail += '<p><strong>Miles:</strong> ' + new Intl.NumberFormat('en-US').format(vehicle.inv_miles) + '</p>'
+  detail += `<img src="${vehicle.inv_image}" alt="${vehicle.inv_make} ${vehicle.inv_model}">`
+  detail += '<div id="vehicle-info">'
+  detail += `<h2>${vehicle.inv_make} ${vehicle.inv_model} Details</h2>`
+  detail += `<p><strong>Price:</strong> $${new Intl.NumberFormat('en-US').format(vehicle.inv_price)}</p>`
+  detail += `<p><strong>Description:</strong> ${vehicle.inv_description}</p>`
+  detail += `<p><strong>Color:</strong> ${vehicle.inv_color}</p>`
+  detail += `<p><strong>Miles:</strong> ${new Intl.NumberFormat('en-US').format(vehicle.inv_miles)}</p>`
   detail += '</div></div>'
+
+  detail += '<div class="reviews-section"><h3>Customer Reviews</h3>'
+
+  if (errors) {
+    detail += '<ul class="notice">'
+    errors.array().forEach(error => { detail += `<li>${error.msg}</li>` })
+    detail += '</ul>'
+  }
+
+  if (loggedIn == 1) { 
+    detail += `
+      <form action="/inv/add-review" method="post" class="review-form">
+        <label for="review_text">Leave a Review:</label><br>
+        <textarea name="review_text" id="review_text" required>${review_text}</textarea><br>
+        <input type="hidden" name="inv_id" value="${vehicle.inv_id}">
+        <input type="hidden" name="account_id" value="${account_id}">
+        <button type="submit">Submit Review</button>
+      </form>`
+  } else {
+    detail += '<p>Please <a href="/account/login">login</a> to leave a review.</p>'
+  }
+
+  if (Array.isArray(reviews) && reviews.length > 0) {
+    detail += '<ul class="review-list">'
+    reviews.forEach(r => {
+      detail += `<li><strong>${r.account_firstname}</strong>: ${r.review_text}</li>`
+    })
+    detail += '</ul>'
+  } else {
+    detail += '<p>No reviews yet.</p>'
+  }
+  detail += '</div>'
   return detail
+}
+
+/* **************************************
+* Build the classification select list
+* ************************************ */
+Util.buildClassificationList = async function (classification_id = null) {
+  let data = await invModel.getClassifications()
+  let classificationList =
+    '<select name="classification_id" id="classificationList" required>'
+  classificationList += "<option value=''>Choose a Classification</option>"
+  data.rows.forEach((row) => {
+    classificationList += '<option value="' + row.classification_id + '"'
+    if (classification_id != null && row.classification_id == classification_id) {
+      classificationList += " selected "
+    }
+    classificationList += ">" + row.classification_name + "</option>"
+  })
+  classificationList += "</select>"
+  return classificationList
 }
 
 /* ****************************************
@@ -116,11 +150,8 @@ Util.checkJWTToken = (req, res, next) => {
   } else {
    next()
   }
- }
+}
 
-/* ****************************************
- * Check Login
- * ************************************ */
 Util.checkLogin = (req, res, next) => {
   if (res.locals.loggedin) {
     next()
@@ -130,9 +161,6 @@ Util.checkLogin = (req, res, next) => {
   }
 }
 
-/* ****************************************
- * Check Account Type (Employee or Admin only)
- *****************************************/
 Util.checkAdmin = (req, res, next) => {
   if (res.locals.loggedin && (res.locals.accountData.account_type === 'Employee' || res.locals.accountData.account_type === 'Admin')) {
     next()
@@ -142,9 +170,6 @@ Util.checkAdmin = (req, res, next) => {
   }
 }
 
-/* ****************************************
- * Middleware For Handling Errors
- *****************************************/
 Util.handleErrors = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
 module.exports = Util

@@ -1,58 +1,44 @@
 const express = require("express")
-const router = new express.Router() 
+const router = new express.Router()
 const invController = require("../controllers/invController")
+const reviewController = require("../controllers/reviewController")
+const reviewValidate = require("../utilities/review-validation")
 const utilities = require("../utilities/")
-const regValidate = require('../utilities/inventory-validation')
 
-// Route to Management View (Protected)
-router.get("/", utilities.checkAdmin, utilities.handleErrors(invController.buildManagement))
-
-// Route to get inventory as JSON for management view (Protected)
-router.get("/getInventory/:classification_id", utilities.checkAdmin, utilities.handleErrors(invController.getInventoryJSON))
-
-// Routes for Add Classification (Protected)
-router.get("/add-classification", utilities.checkAdmin, utilities.handleErrors(invController.buildAddClassification))
-router.post(
-  "/add-classification", 
-  utilities.checkAdmin,
-  regValidate.classificationRules(),
-  regValidate.checkClassificationData,
-  utilities.handleErrors(invController.addClassification)
-)
-
-// Routes for Add Inventory (Protected)
-router.get("/add-inventory", utilities.checkAdmin, utilities.handleErrors(invController.buildAddInventory))
-router.post(
-  "/add-inventory",
-  utilities.checkAdmin,
-  regValidate.inventoryRules(),
-  regValidate.checkInventoryData,
-  utilities.handleErrors(invController.addInventory)
-)
-
-// Route to Build Edit Inventory View (Protected)
-router.get("/edit/:inv_id", utilities.checkAdmin, utilities.handleErrors(invController.editInventoryView))
-
-// Route to Process Update Inventory (Protected)
-router.post(
-  "/update/",
-  utilities.checkAdmin,
-  regValidate.inventoryRules(),
-  regValidate.checkUpdateData,
-  utilities.handleErrors(invController.updateInventory)
-)
-
-// Route to Build Delete Confirmation View (Protected)
-router.get("/delete/:inv_id", utilities.checkAdmin, utilities.handleErrors(invController.buildDeleteConfirmation))
-
-// Route to Process Delete (Protected)
-router.post("/delete/", utilities.checkAdmin, utilities.handleErrors(invController.deleteItem) )
-
-// Classification and Detail views (PUBLIC - No checkAdmin)
+// Route to build inventory by classification view
 router.get("/type/:classificationId", utilities.handleErrors(invController.buildByClassificationId))
+
+// Route to build inventory item detail view
 router.get("/detail/:inv_id", utilities.handleErrors(invController.buildByInventoryId))
 
-// Error trigger for testing
-router.get("/trigger-error", utilities.handleErrors(invController.triggerError))
+// --- ENHANCEMENT ROUTES ---
+
+// Process review submission with validation
+router.post(
+  "/add-review",
+  utilities.checkLogin,
+  reviewValidate.reviewRules(),
+  reviewValidate.checkReviewData,
+  utilities.handleErrors(reviewController.addReview)
+)
+
+// --- MANAGEMENT ROUTES ---
+router.get("/", utilities.checkAdmin, utilities.handleErrors(invController.buildManagement))
+router.get("/add-classification", utilities.checkAdmin, utilities.handleErrors(invController.buildAddClassification))
+router.post("/add-classification", utilities.checkAdmin, utilities.handleErrors(invController.addClassification))
+
+router.get("/add-inventory", utilities.checkAdmin, utilities.handleErrors(invController.buildAddInventory))
+router.post("/add-inventory", utilities.checkAdmin, utilities.handleErrors(invController.addInventory))
+
+router.get("/getInventory/:classification_id", utilities.handleErrors(invController.getInventoryJSON))
+
+router.get("/edit/:inv_id", utilities.checkAdmin, utilities.handleErrors(invController.editInventoryView))
+router.post("/update/", utilities.checkAdmin, utilities.handleErrors(invController.updateInventory))
+
+router.get("/delete/:inv_id", utilities.checkAdmin, utilities.handleErrors(invController.buildDeleteConfirmation))
+router.post("/delete/", utilities.checkAdmin, utilities.handleErrors(invController.deleteItem))
+
+// Route to trigger an intentional error
+router.get("/error", utilities.handleErrors(invController.triggerError))
 
 module.exports = router
